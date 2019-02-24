@@ -811,7 +811,11 @@ int			packbytes;
 
 void Sys_mkdir (char *path)
 {
-	if (mkdir (path, 0777) != -1)
+#ifdef __MINGW32__
+        if (mkdir (path) != -1)
+#else
+        if (mkdir (path, 0777) != -1)
+#endif
 		return;
 	if (errno != EEXIST)
 		Error ("mkdir %s: %s",path, strerror(errno)); 

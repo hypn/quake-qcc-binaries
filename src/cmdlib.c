@@ -135,7 +135,7 @@ skipwhite:
 
 
 
-
+#ifndef __MINGW32__
 /*
 ================
 filelength
@@ -157,6 +157,7 @@ int tell (int handle)
 {
 	return lseek (handle, 0, SEEK_CUR);
 }
+#endif
 
 char *strupr (char *start)
 {

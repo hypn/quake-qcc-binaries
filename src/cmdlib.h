@@ -51,8 +51,10 @@ extern char **myargv;
 
 char *strupr (char *in);
 char *strlower (char *in);
+#ifndef __MINGW32__
 int filelength (int handle);
 int tell (int handle);
+#endif
 
 double I_FloatTime (void);
 
