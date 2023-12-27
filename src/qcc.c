@@ -184,7 +184,7 @@ void WriteData (int crc)
 	def_t		*def;
 	ddef_t		*dd;
 	dprograms_t	progs;
-	int			h;
+	FILE*		h;
 	int			i;
 
 	for (def = pr.def_head.next ; def ; def = def->next)
@@ -231,11 +231,11 @@ strofs = (strofs+3)&~3;
 	h = SafeOpenWrite (destfile);
 	SafeWrite (h, &progs, sizeof(progs));
 
-	progs.ofs_strings = lseek (h, 0, SEEK_CUR);
+	progs.ofs_strings = fseek (h, 0, SEEK_CUR);
 	progs.numstrings = strofs;
 	SafeWrite (h, strings, strofs);
 
-	progs.ofs_statements = lseek (h, 0, SEEK_CUR);
+	progs.ofs_statements = fseek (h, 0, SEEK_CUR);
 	progs.numstatements = numstatements;
 	for (i=0 ; i<numstatements ; i++)
 	{
@@ -246,7 +246,7 @@ strofs = (strofs+3)&~3;
 	}
 	SafeWrite (h, statements, numstatements*sizeof(dstatement_t));
 
-	progs.ofs_functions = lseek (h, 0, SEEK_CUR);
+	progs.ofs_functions = fseek (h, 0, SEEK_CUR);
 	progs.numfunctions = numfunctions;
 	for (i=0 ; i<numfunctions ; i++)
 	{
@@ -259,7 +259,7 @@ strofs = (strofs+3)&~3;
 	}	
 	SafeWrite (h, functions, numfunctions*sizeof(dfunction_t));
 
-	progs.ofs_globaldefs = lseek (h, 0, SEEK_CUR);
+	progs.ofs_globaldefs = fseek (h, 0, SEEK_CUR);
 	progs.numglobaldefs = numglobaldefs;
 	for (i=0 ; i<numglobaldefs ; i++)
 	{
@@ -269,7 +269,7 @@ strofs = (strofs+3)&~3;
 	}
 	SafeWrite (h, globals, numglobaldefs*sizeof(ddef_t));
 
-	progs.ofs_fielddefs = lseek (h, 0, SEEK_CUR);
+	progs.ofs_fielddefs = fseek (h, 0, SEEK_CUR);
 	progs.numfielddefs = numfielddefs;
 	for (i=0 ; i<numfielddefs ; i++)
 	{
@@ -279,13 +279,13 @@ strofs = (strofs+3)&~3;
 	}
 	SafeWrite (h, fields, numfielddefs*sizeof(ddef_t));
 
-	progs.ofs_globals = lseek (h, 0, SEEK_CUR);
+	progs.ofs_globals = fseek (h, 0, SEEK_CUR);
 	progs.numglobals = numpr_globals;
 	for (i=0 ; i<numpr_globals ; i++)
 		((int *)pr_globals)[i] = LittleLong (((int *)pr_globals)[i]);
 	SafeWrite (h, pr_globals, numpr_globals*4);
 
-	printf ("%6i TOTAL SIZE\n", (int)lseek (h, 0, SEEK_CUR));	
+	printf ("%6i TOTAL SIZE\n", (int)fseek (h, 0, SEEK_CUR));
 
 	progs.entityfields = pr.size_fields;
 
@@ -295,9 +295,9 @@ strofs = (strofs+3)&~3;
 // byte swap the header and write it out
 	for (i=0 ; i<sizeof(progs)/4 ; i++)
 		((int *)&progs)[i] = LittleLong ( ((int *)&progs)[i] );		
-	lseek (h, 0, SEEK_SET);
+	fseek (h, 0, SEEK_SET);
 	SafeWrite (h, &progs, sizeof(progs));
-	close (h);
+	fclose (h);
 	
 }
 
@@ -434,8 +434,8 @@ char *PR_GlobalStringNoContents (gofs_t ofs)
 	val = (void *)&pr_globals[ofs];
 	def = pr_global_defs[ofs];
 	if (!def)
-//		Error ("PR_GlobalString: no def for %i", ofs);
-		sprintf (line,"%i(???)", ofs);
+		// Error ("PR_GlobalString: no def for %i", ofs);
+		sprintf (line,"%i", ofs);
 	else
 		sprintf (line,"%i(%s)", ofs, def->name);
 	
@@ -806,7 +806,7 @@ typedef struct
 } packheader_t;
 
 packfile_t	pfiles[4096], *pf;
-int			packhandle;
+FILE*		packhandle;
 int			packbytes;
 
 void Sys_mkdir (char *path)
@@ -851,7 +851,7 @@ Copy a file into the pak file
 */
 void PackFile (char *src, char *name)
 {
-	int		in;
+	FILE*	in;
 	int		remaining, count;
 	char	buf[4096];
 	
@@ -861,7 +861,7 @@ void PackFile (char *src, char *name)
 	in = SafeOpenRead (src);
 	remaining = filelength (in);
 
-	pf->filepos = LittleLong (lseek (packhandle, 0, SEEK_CUR));
+	pf->filepos = LittleLong (fseek (packhandle, 0, SEEK_CUR));
 	pf->filelen = LittleLong (remaining);
 	strcpy (pf->name, name);
 	printf ("%64s : %7i\n", pf->name, remaining);
@@ -879,7 +879,7 @@ void PackFile (char *src, char *name)
 		remaining -= count;
 	}
 
-	close (in);
+	fclose (in);
 	pf++;
 }
 
@@ -893,7 +893,8 @@ Copies a file, creating any directories needed
 */
 void CopyFile (char *src, char *dest)
 {
-	int		in, out;
+	FILE*	in;
+	FILE*	out;
 	int		remaining, count;
 	char	buf[4096];
 	
@@ -916,8 +917,8 @@ void CopyFile (char *src, char *dest)
 		remaining -= count;
 	}
 
-	close (in);
-	close (out);	
+	fclose (in);
+	fclose (out);
 }
 
 
@@ -1021,14 +1022,14 @@ void CopyFiles (void)
 		header.id[2] = 'C';
 		header.id[3] = 'K';
 		dirlen = (byte *)pf - (byte *)pfiles;
-		header.dirofs = LittleLong(lseek (packhandle, 0, SEEK_CUR));
+		header.dirofs = LittleLong(fseek (packhandle, 0, SEEK_CUR));
 		header.dirlen = LittleLong(dirlen);
 		
 		SafeWrite (packhandle, pfiles, dirlen);
 	
-		lseek (packhandle, 0, SEEK_SET);
+		fseek (packhandle, 0, SEEK_SET);
 		SafeWrite (packhandle, &header, sizeof(header));
-		close (packhandle);	
+		fclose (packhandle);
 	
 	// do a crc of the file
 		CRC_Init (&crc);
@@ -1047,7 +1048,7 @@ void CopyFiles (void)
 main
 ============
 */
-void main (int argc, char **argv)
+int main (int argc, char **argv)
 {
 	char	*src;
 	char	*src2;
@@ -1065,7 +1066,7 @@ void main (int argc, char **argv)
 		printf ("to build a clean data tree: qcc -copy <srcdir> <destdir>\n");
 		printf ("to build a clean pak file: qcc -pak <srcdir> <packfile>\n");
 		printf ("to bsp all bmodels: qcc -bspmodels <gamedir>\n");
-		return;
+		return 0;
 	}
 	
 	p = CheckParm ("-src");
@@ -1134,4 +1135,6 @@ void main (int argc, char **argv)
 
 // report / copy the data files
 	CopyFiles ();
+
+  return 0;
 }

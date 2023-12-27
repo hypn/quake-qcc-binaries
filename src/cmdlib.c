@@ -141,22 +141,23 @@ skipwhite:
 filelength
 ================
 */
-int filelength (int handle)
+int filelength (FILE *f)
 {
-	struct stat	fileinfo;
-    
-	if (fstat (handle,&fileinfo) == -1)
-	{
-		Error ("Error fstating");
-	}
+	int   pos;
+	int   end;
 
-	return fileinfo.st_size;
+	pos = ftell (f);
+	fseek (f, 0, SEEK_END);
+	end = ftell (f);
+	fseek (f, pos, SEEK_SET);
+
+	return end;
 }
 
-int tell (int handle)
-{
-	return lseek (handle, 0, SEEK_CUR);
-}
+// int tell (int handle)
+// {
+// 	return fseek (handle, 0, SEEK_CUR);
+// }
 #endif
 
 char *strupr (char *start)
@@ -239,44 +240,41 @@ int CheckParm (char *check)
 #define O_BINARY 0
 #endif
 
-int SafeOpenWrite (char *filename)
+FILE* SafeOpenWrite (char *filename)
 {
-	int     handle;
-
+	FILE*   handle;
 	umask (0);
 	
-	handle = open(filename,O_WRONLY | O_CREAT | O_TRUNC | O_BINARY
-	, 0666);
+	handle = fopen(filename,"wb");
 
-	if (handle == -1)
+	if (!handle)
 		Error ("Error opening %s: %s",filename,strerror(errno));
 
 	return handle;
 }
 
-int SafeOpenRead (char *filename)
+FILE* SafeOpenRead (char *filename)
 {
-	int     handle;
+	FILE*   handle;
+	handle = fopen(filename,"rb");
 
-	handle = open(filename,O_RDONLY | O_BINARY);
-
-	if (handle == -1)
+	if (!handle)
 		Error ("Error opening %s: %s",filename,strerror(errno));
 
 	return handle;
 }
 
 
-void SafeRead (int handle, void *buffer, long count)
+void SafeRead (FILE* handle, void *buffer, long count)
 {
-	if (read (handle,buffer,count) != count)
+	if (fread (buffer,count,1,handle) != count)
 		Error ("File read failure");
 }
 
 
-void SafeWrite (int handle, void *buffer, long count)
+void SafeWrite (FILE* handle, void *buffer, long count)
 {
-	if (write (handle,buffer,count) != count)
+	if (fwrite (buffer,count,1,handle) != count)
 		Error ("File write failure");
 }
 
@@ -301,7 +299,7 @@ LoadFile
 */
 long    LoadFile (char *filename, void **bufferptr)
 {
-	int             handle;
+	FILE*   handle;
 	long    length;
 	void    *buffer;
 
@@ -310,7 +308,7 @@ long    LoadFile (char *filename, void **bufferptr)
 	buffer = SafeMalloc (length+1);
 	((byte *)buffer)[length] = 0;
 	SafeRead (handle, buffer, length);
-	close (handle);
+	fclose (handle);
 
 	*bufferptr = buffer;
 	return length;
@@ -324,11 +322,11 @@ SaveFile
 */
 void    SaveFile (char *filename, void *buffer, long count)
 {
-	int             handle;
+	FILE*           handle;
 
 	handle = SafeOpenWrite (filename);
 	SafeWrite (handle, buffer, count);
-	close (handle);
+	fclose (handle);
 }
 
 

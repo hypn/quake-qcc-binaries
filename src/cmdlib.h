@@ -52,7 +52,7 @@ extern char **myargv;
 char *strupr (char *in);
 char *strlower (char *in);
 #ifndef __MINGW32__
-int filelength (int handle);
+int filelength (FILE* f);
 int tell (int handle);
 #endif
 
@@ -61,10 +61,10 @@ double I_FloatTime (void);
 void	Error (char *error, ...);
 int		CheckParm (char *check);
 
-int 	SafeOpenWrite (char *filename);
-int 	SafeOpenRead (char *filename);
-void 	SafeRead (int handle, void *buffer, long count);
-void 	SafeWrite (int handle, void *buffer, long count);
+FILE*	SafeOpenWrite (char *filename);
+FILE*	SafeOpenRead (char *filename);
+void 	SafeRead (FILE* handle, void *buffer, long count);
+void 	SafeWrite (FILE* handle, void *buffer, long count);
 void 	*SafeMalloc (long size);
 
 long	LoadFile (char *filename, void **bufferptr);
