@@ -54,7 +54,7 @@ writing progdefs.h
 
 
 ## Usage:
-Run the relevant qcc binary in your QuakeC source directory to compile "progs.dat", eg:
+Run the relevant qcc binary in your QuakeC source directory (eg: "v101qc") to compile the "progs.dat", eg:
 
 ```
 ~/code/quake-mod$ ~/quake-qcc-binaries/qcc-x86_64-linux-gnu
@@ -69,6 +69,11 @@ compiling fight.qc
 ```
 
 ## Re-compiling binaries:
-Run `make-binaries.sh` in Linux with Docker installed. You will need to clone the [Quake client source repo](https://github.com/id-Software/Quake) in to this repo's directory (but the build script will give you the command).
+Run `make-binaries.sh` in Linux with Docker installed. You will need to clone the [Quake client source repo](https://github.com/id-Software/Quake) into this repo's directory (but the build script will give you the command).
 
 Note: a few hundred megabytes of Docker images (for "dockcross") will be downloaded.
+
+
+## WASM:
+
+There is also a [PoC/test branch](https://github.com/hypn/quake-qcc-binaries/compare/47c5b827b3263fe6cf12ea972bb61d0e59e4c2d5...wasm-test) for compiling `qcc` to WASM.
