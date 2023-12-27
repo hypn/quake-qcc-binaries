@@ -6,10 +6,50 @@ Compiled using https://github.com/dockcross/dockcross
 ## WASM test:
 This branch is an attempt at getting the QuakeC Compiler working under Emscripten - see [make-wasm.sh](make-wasm.sh) (after running that, run `python3 -m http.server` and browse to [http://localhost:8000/qcc-wasm.html](http://localhost:8000/qcc-wasm.html))
 
-The resulting WASM binary "runs" but exits with an error:
+The resulting WASM binary "runs" but the (hopefully) compiled `progs.dat` file is not retrievable:
 ```
-************ ERROR ************
-Error opening progs.src: No such file or directory
+outputfile: ../progs.dat
+compiling defs.qc
+compiling subs.qc
+compiling fight.qc
+compiling ai.qc
+compiling combat.qc
+compiling items.qc
+compiling weapons.qc
+compiling world.qc
+compiling client.qc
+compiling player.qc
+compiling monsters.qc
+compiling doors.qc
+compiling buttons.qc
+compiling triggers.qc
+compiling plats.qc
+compiling misc.qc
+compiling ogre.qc
+compiling demon.qc
+compiling shambler.qc
+compiling knight.qc
+compiling soldier.qc
+compiling wizard.qc
+compiling dog.qc
+compiling zombie.qc
+compiling boss.qc
+compiling tarbaby.qc
+compiling hknight.qc
+compiling fish.qc
+compiling shalrath.qc
+compiling enforcer.qc
+compiling oldone.qc
+writing progdefs.h
+ 88104 strofs
+ 20732 numstatements
+  2091 numfunctions
+  4272 numglobaldefs
+   218 numfielddefs
+ 11350 numpr_globals
+410616 TOTAL SIZE
+225 unique precache_sounds
+ 95 unique precache_models
 ```
 
 
