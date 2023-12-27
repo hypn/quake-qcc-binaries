@@ -3,6 +3,16 @@ QuakeC Compiler binaries for Linux and Windows (32bit and 64bit) - because https
 
 Compiled using https://github.com/dockcross/dockcross
 
+## WASM test:
+This branch is an attempt at getting the QuakeC Compiler working under Emscripten - see [make-wasm.sh](make-wasm.sh) (after running that, run `python3 -m http.server` and browse to [http://localhost:8000/qcc-wasm.html](http://localhost:8000/qcc-wasm.html))
+
+The resulting WASM binary "runs" but exits with an error:
+```
+************ ERROR ************
+Error opening progs.src: No such file or directory
+```
+
+
 ## Usage:
 Run the relevant qcc binary in your QuakeC source directory to compile "progs.dat", eg:
 
