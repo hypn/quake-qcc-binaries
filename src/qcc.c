@@ -285,7 +285,7 @@ strofs = (strofs+3)&~3;
 		((int *)pr_globals)[i] = LittleLong (((int *)pr_globals)[i]);
 	SafeWrite (h, pr_globals, numpr_globals*4);
 
-	printf ("%6i TOTAL SIZE\n", (int)fseek (h, 0, SEEK_CUR));
+	printf ("%6i TOTAL SIZE\n", (int)filelength(h));
 
 	progs.entityfields = pr.size_fields;
 
