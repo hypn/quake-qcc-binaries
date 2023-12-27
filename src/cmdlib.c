@@ -267,14 +267,14 @@ FILE* SafeOpenRead (char *filename)
 
 void SafeRead (FILE* handle, void *buffer, long count)
 {
-	if (fread (buffer,count,1,handle) != count)
+	if (fread (buffer,count,1,handle) != 1)
 		Error ("File read failure");
 }
 
 
 void SafeWrite (FILE* handle, void *buffer, long count)
 {
-	if (fwrite (buffer,count,1,handle) != count)
+	if (fwrite (buffer,count,1,handle) != 1)
 		Error ("File write failure");
 }
 
